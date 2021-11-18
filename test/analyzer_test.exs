@@ -14,11 +14,11 @@ defmodule AnalyzerTest do
   @ratings_missing3 Ratings.create(nil, nil, nil, 5, 5, true)
   @ratings_missingAll Ratings.create(nil, nil, nil, nil, nil, true)
 
-  test "perfect ratings scores a 5.0" do
+  test "perfect ratings scores a 5" do
     assert DealerReviews.Analyzer.score_ratings(@ratings_perfect) == 5
   end
 
-  test "lowest ratings scores a 1.0" do
+  test "lowest ratings scores a 1" do
     assert DealerReviews.Analyzer.score_ratings(@ratings_lowest) == 1
   end
 
@@ -57,16 +57,34 @@ defmodule AnalyzerTest do
     EmployeeReview.create("E2", 5)
   ]
 
-  test "perfect employees scores a 5.0" do
-    assert DealerReviews.Analyzer.score_employees(@employees_perfect) == 5.0
+  test "perfect employees scores a 5" do
+    assert DealerReviews.Analyzer.score_employees(@employees_perfect) == 5
   end
 
-  test "lowest employees scores a 1.0" do
-    assert DealerReviews.Analyzer.score_employees(@employees_lowest) == 1.0
+  test "lowest employees scores a 1" do
+    assert DealerReviews.Analyzer.score_employees(@employees_lowest) == 1
   end
 
   # average employee ratings then average in the number of employees under 5 multiplied by the weighting factor of 2
   test "mixed employees scores a 3.5" do
     assert DealerReviews.Analyzer.score_employees(@employees_mixed) == 3.5
   end
+
+  # score body
+  @body_perfect "!!!!!!!!!!"  # 10 !s
+  @body_lowest ""
+  @body_mixed "!!!!!"  # 5 !s
+
+  test "perfect body scores a 5" do
+    assert DealerReviews.Analyzer.score_body(@body_perfect) == 5
+  end
+
+  test "lowert body scores a 1" do
+    assert DealerReviews.Analyzer.score_body(@body_lowest) == 1
+  end
+
+  test "mixed body scores a 3" do
+    assert DealerReviews.Analyzer.score_body(@body_mixed) == 3
+  end
+
 end
