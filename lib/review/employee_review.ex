@@ -1,5 +1,6 @@
 defmodule DealerReviews.Review.EmployeeReview do
-  defstruct name: "", rating: 0
+  # TODO: module docs clarify that rating here can be null
+  defstruct name: "", rating: nil
 
   @type t :: %__MODULE__{
           name: String.t(),
@@ -10,6 +11,12 @@ defmodule DealerReviews.Review.EmployeeReview do
     %__MODULE__{
       name: name,
       rating: rating
+    }
+  end
+
+  def create(name) do
+    %__MODULE__{
+      name: name
     }
   end
 end
