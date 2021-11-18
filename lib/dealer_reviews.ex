@@ -1,4 +1,4 @@
-defmodule DealerReviews do
+defmodule DealerReviews.CLI do
   @moduledoc """
   Documentation for `DealerReviews`.
   """
@@ -8,11 +8,14 @@ defmodule DealerReviews do
 
   ## Examples
 
-      iex> DealerReviews.hello()
+      iex> DealerReviews.CLI.hello()
       :world
 
   """
   def hello do
     :world
+  end
+  def main(_args) do
+    IO.puts("Hello world")
   end
 end

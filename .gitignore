@@ -24,3 +24,4 @@ dealer_reviews-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+dealer_reviews

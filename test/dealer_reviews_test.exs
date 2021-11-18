@@ -1,8 +1,8 @@
 defmodule DealerReviewsTest do
   use ExUnit.Case
-  doctest DealerReviews
+  doctest DealerReviews.CLI
 
   test "greets the world" do
-    assert DealerReviews.hello() == :world
+    assert DealerReviews.CLI.hello() == :world
   end
 end
