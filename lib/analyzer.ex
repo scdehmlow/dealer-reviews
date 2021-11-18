@@ -8,6 +8,7 @@ defmodule DealerReviews.Analyzer do
       friendliness: friendliness,
       overall: overall,
       pricing: pricing,
+      quality: quality,
       recommend: recommend
     } = ratings
 
@@ -22,14 +23,14 @@ defmodule DealerReviews.Analyzer do
 
     # ignore missing values
     rating_values =
-      [customer_service, friendliness, overall, pricing, recommend_value]
+      [customer_service, friendliness, overall, pricing, quality, recommend_value]
       |> Enum.filter(fn r -> r != nil end)
 
     rating_values_count = Enum.count(rating_values)
 
     case rating_values do
-      v when rating_values_count >= 3 -> Enum.sum(v) / rating_values_count
-      # less than three ratings returns a score of 1
+      v when rating_values_count > 3 -> Enum.sum(v) / rating_values_count
+      # three or less ratings returns a score of 1
       _ -> 1
     end
   end

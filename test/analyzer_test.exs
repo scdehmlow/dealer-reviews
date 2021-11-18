@@ -6,13 +6,13 @@ defmodule AnalyzerTest do
   alias DealerReviews.Review.EmployeeReview
 
   # ratings scoring
-  @ratings_perfect Ratings.create(5, 5, 5, 5, true)
-  @ratings_lowest Ratings.create(1, 1, 1, 1, false)
-  @ratings_mixed Ratings.create(5, 4, 4, 5, true)
-  @ratings_missing Ratings.create(5, nil, 5, 5, true)
-  @ratings_missing2 Ratings.create(5, nil, nil, 5, true)
-  @ratings_missing3 Ratings.create(nil, nil, nil, 5, true)
-  @ratings_missingAll Ratings.create(nil, nil, nil, nil, true)
+  @ratings_perfect Ratings.create(5, 5, 5, 5, 5, true)
+  @ratings_lowest Ratings.create(1, 1, 1, 1, 1, false)
+  @ratings_mixed Ratings.create(5, 4, 4, 5, 4, true)
+  @ratings_missing Ratings.create(5, nil, 5, 5, 5, true)
+  @ratings_missing2 Ratings.create(5, nil, nil, 5, 5, true)
+  @ratings_missing3 Ratings.create(nil, nil, nil, 5, 5, true)
+  @ratings_missingAll Ratings.create(nil, nil, nil, nil, nil, true)
 
   test "perfect ratings scores a 5.0" do
     assert DealerReviews.Analyzer.score_ratings(@ratings_perfect) == 5
@@ -22,8 +22,8 @@ defmodule AnalyzerTest do
     assert DealerReviews.Analyzer.score_ratings(@ratings_lowest) == 1
   end
 
-  test "mixed ratings score a 4.6" do
-    assert DealerReviews.Analyzer.score_ratings(@ratings_mixed) == 4.6
+  test "mixed ratings score a 4.5" do
+    assert DealerReviews.Analyzer.score_ratings(@ratings_mixed) == 4.5
   end
 
   test "missing one rating should not hurt score" do

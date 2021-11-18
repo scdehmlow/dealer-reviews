@@ -10,7 +10,7 @@ defmodule CliTest do
                     3,
                     "reason",
                     "body",
-                    DealerReviews.Review.Ratings.create(4, 4, 4, 4, true),
+                    DealerReviews.Review.Ratings.create(4, 4, 4, 4, 4, true),
                     [
                       DealerReviews.Review.EmployeeReview.create("Employee 1", 5),
                       DealerReviews.Review.EmployeeReview.create("Employee 2", 3)
@@ -33,6 +33,7 @@ defmodule CliTest do
         friendliness: 4,
         overall: 4,
         pricing: 4,
+        quality: 4,
         recommend: true
       },
       title: "Title",
