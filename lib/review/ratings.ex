@@ -1,4 +1,4 @@
-defmodule DealerReviews.Ratings do
+defmodule DealerReviews.Review.Ratings do
   defstruct customer_service: 0, friendliness: 0, pricing: 0, overall: 0, recommend: false
 
   @type t :: %__MODULE__{

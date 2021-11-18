@@ -1,4 +1,4 @@
-defmodule DealerReviews.EmployeeReview do
+defmodule DealerReviews.Review.EmployeeReview do
   defstruct name: "", rating: 0
 
   @type t :: %__MODULE__{
