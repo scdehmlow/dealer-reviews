@@ -1,21 +1,12 @@
 # DealerReviews
 
-**TODO: Add description**
+This application will analyze a set of reviews for a sample dealership and pick out the top three overly positive.
+Three measures are used to determine the most overly positive sentiment of the reviews.
+All scores are calculated on a scale from 1-5 to correlate with a five option star rating system.
+The following scores are used to sort the reviews:
+- Average ratings when four or more are provided
+- Ratings of employees combined with the total number of employees listed which is weighted at 2x
+- Number of `!` characters in the review body
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `dealer_reviews` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:dealer_reviews, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/dealer_reviews](https://hexdocs.pm/dealer_reviews).
+## Running
 
