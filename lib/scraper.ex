@@ -145,43 +145,70 @@ defmodule DealerReviews.Scraper do
     document |> Floki.find("#reviews .review-entry .review-wrapper .review-ratings-all")
   end
 
+  def parse_recommend(recommend) do
+    case recommend do
+      "Yes" -> true
+      "No" -> false
+      _ -> raise "Invalid recommend #{recommend}"
+    end
+  end
+
+  def parse_rating_section(section) do
+    case section do
+      {"div", _,
+       [
+         {"div", _, [label]},
+         {"div",
+          [
+            {"class",
+             "rating-static-indv rating-" <> <<rating::binary-size(1)>> <> "0 margin-top-none td"}
+          ], []}
+       ]} ->
+        %{label: label, rating: rating |> String.to_integer}
+
+      {"div", _,
+       [
+         {"div", _, [label]},
+         {"div", [{"class", "td small-text boldest"}], [recommend]}
+       ]} ->
+        %{label: label, recommend: recommend |> String.replace("\r\n","") |> String.trim |> parse_recommend}
+
+      _ ->
+        nil
+    end
+  end
+
   def parse_ratings_section(section) do
     {"div", _,
      [
        _,
-       {"div", _,
-        [
-          {"div", [{"class", "tr"}],
-           [
-             {"div", [{"class", "lt-grey small-text td"}], ["Customer Service"]},
-             {"div", [{"class", "rating-static-indv rating-50 margin-top-none td"}], []}
-           ]},
-          {:comment, " REVIEW RATING - FRIENDLINESS "},
-          {"div", [{"class", "tr margin-bottom-md"}],
-           [
-             {"div", [{"class", "lt-grey small-text td"}], ["Friendliness"]},
-             {"div", [{"class", "rating-static-indv rating-50 margin-top-none td"}], []}
-           ]},
-          {:comment, " REVIEW RATING - PRICING "},
-          {"div", [{"class", "tr margin-bottom-md"}],
-           [
-             {"div", [{"class", "lt-grey small-text td"}], ["Pricing"]},
-             {"div", [{"class", "rating-static-indv rating-50 margin-top-none td"}], []}
-           ]},
-          {:comment, " REVIEW RATING - EXPERIENCE "},
-          {"div", [{"class", "tr margin-bottom-md"}],
-           [
-             {"div", [{"class", "td lt-grey small-text"}], ["Overall Experience"]},
-             {"div", [{"class", "rating-static-indv rating-50 margin-top-none td"}], []}
-           ]},
-          {:comment, " REVIEW RATING - RECOMMEND DEALER "},
-          {"div", [{"class", "tr"}],
-           [
-             {"div", [{"class", "lt-grey small-text td"}], ["Recommend Dealer"]},
-             {"div", [{"class", "td small-text boldest"}],
-              ["\r\n                Yes\r\n            "]}
-           ]}
-        ]}
+       {"div", _, ratings}
      ]} = section
+
+    ratings
+  end
+
+  def merge_ratings(ratings_map, ratings) do
+    case ratings do
+      [h|t] -> case h do
+        %{label: "Customer Service", rating: r} -> Map.put(ratings_map, :customer_service, r)
+        %{label: "Friendliness", rating: r} ->  Map.put(ratings_map, :friendliness, r)
+        %{label: "Pricing", rating: r} ->  Map.put(ratings_map, :pricing, r)
+        %{label: "Overall Experience", rating: r} ->  Map.put(ratings_map, :overall, r)
+        %{label: "Recommend Dealer", recommend: r} ->  Map.put(ratings_map, :recommend, r)
+      end
+      |> merge_ratings(t)
+      [] -> struct(DealerReviews.Review.Ratings, ratings_map)
+    end
+  end
+
+  def test(document) do
+    ratings = find_ratings_section(document)
+    [ratings1 | _] = ratings
+    rating_list = parse_ratings_section(ratings1)
+    |> Enum.map(fn r -> parse_rating_section(r) end)
+    |> Enum.filter(fn r -> r != nil end)
+
+    merge_ratings(%{}, rating_list)
   end
 end
