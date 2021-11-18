@@ -38,10 +38,39 @@ defmodule DealerReviews.Scraper do
   def parse(response) do
     {:ok, document} = Floki.parse_document(response.body)
 
-    reviews =
-      document
-      |> Floki.find("#reviews")
-      |> Floki.find(".review-entry")
+    review_dates = get_review_dates(document)
+    titles = get_titles(document)
+    bodies = get_bodies(document)
+    employees = get_employees(document)
+    ratings = get_ratings(document)
+
+    review_dates
+    |> Enum.zip(titles)
+    |> Enum.map(fn {r, t} ->
+      %{date: date, overall: overall, visit_reason: visit_reason} = r
+      %{customer: customer, title: title} = t
+
+      %{
+        title: title,
+        customer: customer,
+        date: date,
+        overall_rating: overall,
+        visit_reason: visit_reason
+      }
+    end)
+    |> Enum.zip(bodies)
+    |> Enum.map(fn {r, b} ->
+      Map.put(r, :body, b)
+    end)
+    |> Enum.zip(employees)
+    |> Enum.map(fn {r, e} ->
+      Map.put(r, :employees, e)
+    end)
+    |> Enum.zip(ratings)
+    |> Enum.map(fn {r, rt} ->
+      Map.put(r, :ratings, rt)
+    end)
+    |> Enum.map(fn r -> struct(DealerReviews.Review, r) end)
   end
 
   def find_review_date_sections(document) do
@@ -49,23 +78,21 @@ defmodule DealerReviews.Scraper do
   end
 
   def parse_review_date_section(section) do
-    [
-      {"div", _,
-       [
-         {"div", _, [date]},
-         {"div", _,
-          [
-            {"div",
-             [
-               {"class",
-                "rating-static visible-xs pad-none margin-none rating-" <>
-                  <<overall::binary-size(1)>> <> "0 pull-right"}
-             ], _},
-            _,
-            {"div", _, [visit_reason]}
-          ]}
-       ]}
-    ] = section
+    {"div", _,
+     [
+       {"div", _, [date]},
+       {"div", _,
+        [
+          {"div",
+           [
+             {"class",
+              "rating-static visible-xs pad-none margin-none rating-" <>
+                <<overall::binary-size(1)>> <> "0 pull-right"}
+           ], _},
+          _,
+          {"div", _, [visit_reason]}
+        ]}
+     ]} = section
 
     %{date: date, overall: overall, visit_reason: visit_reason}
   end
@@ -98,7 +125,7 @@ defmodule DealerReviews.Scraper do
         ]}
      ]} = section
 
-    %{body: body}
+    body
   end
 
   def find_employees_sections(document) do
@@ -130,7 +157,7 @@ defmodule DealerReviews.Scraper do
      ]} = section
 
     employee_cleaned = employee |> String.replace("\r\n", "") |> String.trim()
-    {rating_integer, _} = rating |> Integer.parse
+    {rating_integer, _} = rating |> Integer.parse()
     %DealerReviews.Review.EmployeeReview{name: employee_cleaned, rating: rating_integer}
   end
 
@@ -228,5 +255,24 @@ defmodule DealerReviews.Scraper do
     end)
   end
 
-  # def get_
+  def get_bodies(document) do
+    find_body_sections(document)
+    |> Enum.map(fn b ->
+      parse_body_section(b)
+    end)
+  end
+
+  def get_titles(document) do
+    find_title_sections(document)
+    |> Enum.map(fn t ->
+      parse_title_section(t)
+    end)
+  end
+
+  def get_review_dates(document) do
+    find_review_date_sections(document)
+    |> Enum.map(fn r ->
+      parse_review_date_section(r)
+    end)
+  end
 end
