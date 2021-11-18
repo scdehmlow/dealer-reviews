@@ -18,4 +18,8 @@ defmodule DealerReviews.Cli do
   def main(_args) do
     IO.puts("Hello world")
   end
+
+  def print_review(review = %DealerReviews.Review{}) do
+    IO.inspect(review)
+  end
 end
