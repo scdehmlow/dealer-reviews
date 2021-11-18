@@ -9,17 +9,37 @@ defmodule AnalyzerTest do
   @ratings_perfect Ratings.create(5, 5, 5, 5, true)
   @ratings_lowest Ratings.create(1, 1, 1, 1, false)
   @ratings_mixed Ratings.create(5, 4, 4, 5, true)
+  @ratings_missing Ratings.create(5, nil, 5, 5, true)
+  @ratings_missing2 Ratings.create(5, nil, nil, 5, true)
+  @ratings_missing3 Ratings.create(nil, nil, nil, 5, true)
+  @ratings_missingAll Ratings.create(nil, nil, nil, nil, true)
 
   test "perfect ratings scores a 5.0" do
-    assert DealerReviews.Analyzer.score_ratings(@ratings_perfect) == 5.0
+    assert DealerReviews.Analyzer.score_ratings(@ratings_perfect) == 5
   end
 
   test "lowest ratings scores a 1.0" do
-    assert DealerReviews.Analyzer.score_ratings(@ratings_lowest) == 1.0
+    assert DealerReviews.Analyzer.score_ratings(@ratings_lowest) == 1
   end
 
   test "mixed ratings score a 4.6" do
     assert DealerReviews.Analyzer.score_ratings(@ratings_mixed) == 4.6
+  end
+
+  test "missing one rating should not hurt score" do
+    assert DealerReviews.Analyzer.score_ratings(@ratings_missing) == 5
+  end
+
+  test "missing two ratings should not hurt score" do
+    assert DealerReviews.Analyzer.score_ratings(@ratings_missing2) == 5
+  end
+
+  test "missing three ratings should hurt score" do
+    refute DealerReviews.Analyzer.score_ratings(@ratings_missing3) == 5
+  end
+
+  test "missing all ratings should score a 1" do
+    assert DealerReviews.Analyzer.score_ratings(@ratings_missingAll) == 1
   end
 
   # employees scoring

@@ -20,7 +20,18 @@ defmodule DealerReviews.Analyzer do
         false -> 1
       end
 
-    (customer_service + friendliness + overall + pricing + recommend_value) / 5
+    # ignore missing values
+    rating_values =
+      [customer_service, friendliness, overall, pricing, recommend_value]
+      |> Enum.filter(fn r -> r != nil end)
+
+    rating_values_count = Enum.count(rating_values)
+
+    case rating_values do
+      v when rating_values_count >= 3 -> Enum.sum(v) / rating_values_count
+      # less than three ratings returns a score of 1
+      _ -> 1
+    end
   end
 
   def score_employees(employees) do
