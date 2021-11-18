@@ -130,7 +130,8 @@ defmodule DealerReviews.Scraper do
      ]} = section
 
     employee_cleaned = employee |> String.replace("\r\n", "") |> String.trim()
-    %{employee: employee_cleaned, rating: rating |> Integer.parse()}
+    {rating_integer, _} = rating |> Integer.parse
+    %DealerReviews.Review.EmployeeReview{name: employee_cleaned, rating: rating_integer}
   end
 
   def parse_employees_section(section) do
@@ -164,14 +165,17 @@ defmodule DealerReviews.Scraper do
              "rating-static-indv rating-" <> <<rating::binary-size(1)>> <> "0 margin-top-none td"}
           ], []}
        ]} ->
-        %{label: label, rating: rating |> String.to_integer}
+        %{label: label, rating: rating |> String.to_integer()}
 
       {"div", _,
        [
          {"div", _, [label]},
          {"div", [{"class", "td small-text boldest"}], [recommend]}
        ]} ->
-        %{label: label, recommend: recommend |> String.replace("\r\n","") |> String.trim |> parse_recommend}
+        %{
+          label: label,
+          recommend: recommend |> String.replace("\r\n", "") |> String.trim() |> parse_recommend
+        }
 
       _ ->
         nil
@@ -190,25 +194,39 @@ defmodule DealerReviews.Scraper do
 
   def merge_ratings(ratings_map, ratings) do
     case ratings do
-      [h|t] -> case h do
-        %{label: "Customer Service", rating: r} -> Map.put(ratings_map, :customer_service, r)
-        %{label: "Friendliness", rating: r} ->  Map.put(ratings_map, :friendliness, r)
-        %{label: "Pricing", rating: r} ->  Map.put(ratings_map, :pricing, r)
-        %{label: "Overall Experience", rating: r} ->  Map.put(ratings_map, :overall, r)
-        %{label: "Recommend Dealer", recommend: r} ->  Map.put(ratings_map, :recommend, r)
-      end
-      |> merge_ratings(t)
-      [] -> struct(DealerReviews.Review.Ratings, ratings_map)
+      [h | t] ->
+        case h do
+          %{label: "Customer Service", rating: r} -> Map.put(ratings_map, :customer_service, r)
+          %{label: "Friendliness", rating: r} -> Map.put(ratings_map, :friendliness, r)
+          %{label: "Pricing", rating: r} -> Map.put(ratings_map, :pricing, r)
+          %{label: "Overall Experience", rating: r} -> Map.put(ratings_map, :overall, r)
+          %{label: "Recommend Dealer", recommend: r} -> Map.put(ratings_map, :recommend, r)
+        end
+        |> merge_ratings(t)
+
+      [] ->
+        struct(DealerReviews.Review.Ratings, ratings_map)
     end
   end
 
-  def test(document) do
-    ratings = find_ratings_section(document)
-    [ratings1 | _] = ratings
-    rating_list = parse_ratings_section(ratings1)
-    |> Enum.map(fn r -> parse_rating_section(r) end)
-    |> Enum.filter(fn r -> r != nil end)
+  def get_ratings(document) do
+    find_ratings_section(document)
+    |> Enum.map(fn rating ->
+      rating_list =
+        parse_ratings_section(rating)
+        |> Enum.map(fn r -> parse_rating_section(r) end)
+        |> Enum.filter(fn r -> r != nil end)
 
-    merge_ratings(%{}, rating_list)
+      merge_ratings(%{}, rating_list)
+    end)
   end
+
+  def get_employees(document) do
+    find_employees_sections(document)
+    |> Enum.map(fn e ->
+      parse_employees_section(e)
+    end)
+  end
+
+  # def get_
 end
