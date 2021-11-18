@@ -8,7 +8,7 @@ defmodule DealerReviews.MixProject do
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      escript: [main_module: DealerReviews]
+      escript: [main_module: DealerReviews.Cli]
     ]
   end
 

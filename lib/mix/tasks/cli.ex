@@ -4,6 +4,6 @@ defmodule Mix.Tasks.Cli do
 
   @shortdoc "Runs the CLI main method to print to console."
   def run(args) do
-    DealerReviews.CLI.main(args)
+    DealerReviews.Cli.main(args)
   end
 end
