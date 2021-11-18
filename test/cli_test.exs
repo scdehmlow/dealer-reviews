@@ -4,16 +4,18 @@ defmodule CliTest do
   import ExUnit.CaptureIO
 
   @review_fixture DealerReviews.Review.create(
-    "Title",
-    "Customer",
-    Date.utc_today(),
-    3,
-    "reason",
-    "body",
-    DealerReviews.Review.Ratings.create(4, 4, 4, 4, true),
-    [DealerReviews.Review.EmployeeReview.create("Employee 1", 5),
-     DealerReviews.Review.EmployeeReview.create("Employee 2", 3)]
-  )
+                    "Title",
+                    "Customer",
+                    Date.utc_today(),
+                    3,
+                    "reason",
+                    "body",
+                    DealerReviews.Review.Ratings.create(4, 4, 4, 4, true),
+                    [
+                      DealerReviews.Review.EmployeeReview.create("Employee 1", 5),
+                      DealerReviews.Review.EmployeeReview.create("Employee 2", 3)
+                    ]
+                  )
 
   test "prints review to console" do
     expected = """
@@ -37,6 +39,7 @@ defmodule CliTest do
       visit_reason: "reason"
     }
     """
+
     actual = capture_io(fn -> DealerReviews.Cli.print_review(@review_fixture) end)
     assert actual == expected
   end

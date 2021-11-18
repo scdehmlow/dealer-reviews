@@ -15,6 +15,7 @@ defmodule DealerReviews.Cli do
   def hello do
     :world
   end
+
   def main(_args) do
     IO.puts("Hello world")
   end
