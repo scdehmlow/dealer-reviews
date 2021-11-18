@@ -71,9 +71,11 @@ defmodule AnalyzerTest do
   end
 
   # score body
-  @body_perfect "!!!!!!!!!!"  # 10 !s
+  # 10 !s
+  @body_perfect "!!!!!!!!!!"
   @body_lowest ""
-  @body_mixed "!!!!!"  # 5 !s
+  # 5 !s
+  @body_mixed "!!!!!"
 
   test "perfect body scores a 5" do
     assert DealerReviews.Analyzer.score_body(@body_perfect) == 5
@@ -86,5 +88,4 @@ defmodule AnalyzerTest do
   test "mixed body scores a 3" do
     assert DealerReviews.Analyzer.score_body(@body_mixed) == 3
   end
-
 end

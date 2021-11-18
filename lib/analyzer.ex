@@ -61,11 +61,14 @@ defmodule DealerReviews.Analyzer do
 
   def score_body(body) do
     perfect = 10
-    exclaimations = body
-    |> String.graphemes()
-    |> Enum.filter(fn b -> b == "!" end)
-    |> Enum.count
+
+    exclaimations =
+      body
+      |> String.graphemes()
+      |> Enum.filter(fn b -> b == "!" end)
+      |> Enum.count()
+
     # convert to a 1-5 scale
-    (exclaimations / perfect) * 4 + 1
+    exclaimations / perfect * 4 + 1
   end
 end
