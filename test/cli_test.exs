@@ -6,7 +6,7 @@ defmodule CliTest do
   @review_fixture DealerReviews.Review.create(
                     "Title",
                     "Customer",
-                    Date.utc_today(),
+                    ~D[2021-11-18],
                     3,
                     "reason",
                     "body",

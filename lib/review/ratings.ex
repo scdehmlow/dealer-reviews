@@ -1,11 +1,16 @@
 defmodule DealerReviews.Review.Ratings do
-  defstruct customer_service: 0,
-            friendliness: 0,
-            pricing: 0,
-            overall: 0,
-            quality: 0,
+  defstruct customer_service: nil,
+            friendliness: nil,
+            pricing: nil,
+            overall: nil,
+            quality: nil,
             recommend: false
 
+  @typedoc """
+  Contains the multiple categories of ratings.
+  They are optional and are nil when not specified.
+  Ratings are integer values from 1-5.
+  """
   @type t :: %__MODULE__{
           customer_service: integer,
           friendliness: integer,

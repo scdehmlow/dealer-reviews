@@ -1,7 +1,5 @@
 defmodule AnalyzerTest do
   use ExUnit.Case
-  # TODO: Add doctests
-  # doctest DealerReviews.Analyzer
   alias DealerReviews.Review.Ratings
   alias DealerReviews.Review.EmployeeReview
 

@@ -9,4 +9,7 @@ The following scores are used to sort the reviews:
 - Number of `!` characters in the review body
 
 ## Running
-
+To run the application either build an executable with `mix escript.build`, 
+run `DealerReviews.Cli.main` in iex, or run the mix task with `mix cli`.
+## Testing
+Tests can be run with `mix test`.

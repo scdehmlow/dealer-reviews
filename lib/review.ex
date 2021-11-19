@@ -2,12 +2,18 @@ defmodule DealerReviews.Review do
   defstruct title: "",
             customer: "",
             date: Date.utc_today(),
-            overall_rating: 0,
+            overall_rating: nil,
             visit_reason: "",
             body: "",
             ratings: DealerReviews.Review.Ratings,
             employees: []
 
+  @typedoc """
+  The aggregate root of this application.
+  Each review contains all of the information pulled
+  from the site and has all that is needed to score
+  and sort it.
+  """
   @type t :: %__MODULE__{
           title: String.t(),
           customer: String.t(),

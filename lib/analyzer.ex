@@ -1,10 +1,16 @@
 defmodule DealerReviews.Analyzer do
   @moduledoc """
+  Contains functions to analyze the contents of a review and
+  score different properties for sorting.
+  """
 
+  @doc """
+  Average ratings when four or more are provided.
   """
   def score_ratings(%DealerReviews.Review{ratings: ratings}) do
     score_ratings(ratings)
   end
+
   def score_ratings(ratings = %DealerReviews.Review.Ratings{}) do
     %DealerReviews.Review.Ratings{
       customer_service: customer_service,
@@ -38,9 +44,13 @@ defmodule DealerReviews.Analyzer do
     end
   end
 
+  @doc """
+  Ratings of employees combined with the total number of employees listed which is weighted at 2x.
+  """
   def score_employees(%DealerReviews.Review{employees: employees}) do
     score_employees(employees)
   end
+
   def score_employees(employees) do
     count_weight = 2
     count = Enum.count(employees)
@@ -65,9 +75,13 @@ defmodule DealerReviews.Analyzer do
       (Enum.count(employees_rated) + count_weight)
   end
 
+  @doc """
+  Number of `!` characters in the review body.
+  """
   def score_body(%DealerReviews.Review{body: body}) do
     score_body(body)
   end
+
   def score_body(body) do
     perfect = 10
 
