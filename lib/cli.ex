@@ -4,20 +4,17 @@ defmodule DealerReviews.Cli do
   """
 
   @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> DealerReviews.Cli.hello()
-      :world
-
+  Main method for the CLI which fetches reviews, scores them,
+  and finally prints the top three. The first 5 pages are
+  fetched.
   """
-  def hello do
-    :world
-  end
-
   def main(_args) do
-    IO.puts("Hello world")
+    DealerReviews.Scraper.get_reviews_pages(1..5)
+    |> Enum.sort_by(fn r -> DealerReviews.Analyzer.score_ratings(r) end, :desc)
+    |> Enum.sort_by(fn r -> DealerReviews.Analyzer.score_employees(r) end, :desc)
+    |> Enum.sort_by(fn r -> DealerReviews.Analyzer.score_body(r) end, :desc)
+    |> Enum.take(3)
+    |> Enum.map(fn r -> print_review((r)) end)
   end
 
   def print_review(review = %DealerReviews.Review{}) do

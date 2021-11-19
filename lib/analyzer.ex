@@ -2,6 +2,9 @@ defmodule DealerReviews.Analyzer do
   @moduledoc """
 
   """
+  def score_ratings(%DealerReviews.Review{ratings: ratings}) do
+    score_ratings(ratings)
+  end
   def score_ratings(ratings = %DealerReviews.Review.Ratings{}) do
     %DealerReviews.Review.Ratings{
       customer_service: customer_service,
@@ -35,6 +38,9 @@ defmodule DealerReviews.Analyzer do
     end
   end
 
+  def score_employees(%DealerReviews.Review{employees: employees}) do
+    score_employees(employees)
+  end
   def score_employees(employees) do
     count_weight = 2
     count = Enum.count(employees)
@@ -59,6 +65,9 @@ defmodule DealerReviews.Analyzer do
       (Enum.count(employees_rated) + count_weight)
   end
 
+  def score_body(%DealerReviews.Review{body: body}) do
+    score_body(body)
+  end
   def score_body(body) do
     perfect = 10
 

@@ -28,15 +28,15 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 
-config :crawly,
-  closespider_timeout: 10,
-  concurrent_requests_per_domain: 1,
-  middlewares: [
-    Crawly.Middlewares.DomainFilter,
-    Crawly.Middlewares.UniqueRequest,
-    Crawly.Middlewares.RobotsTxt
-    # {Crawly.Middlewares.UserAgent, user_agents: ["Crawly Bot"]}
-  ]
+# config :crawly,
+#   closespider_timeout: 10,
+#   concurrent_requests_per_domain: 1,
+#   middlewares: [
+#     Crawly.Middlewares.DomainFilter,
+#     Crawly.Middlewares.UniqueRequest,
+#     Crawly.Middlewares.RobotsTxt
+#     # {Crawly.Middlewares.UserAgent, user_agents: ["Crawly Bot"]}
+#   ]
 
 # pipelines: [
 #   {Crawly.Pipelines.Validate, fields: [:url, :title]},
