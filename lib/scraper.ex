@@ -1,29 +1,12 @@
 defmodule DealerReviews.Scraper do
-  use Crawly.Spider
+  def get_reviews_pages(pages) do
+    pages
+    |> Enum.map(fn p -> get_reviews_page(p) end)
+    |> Enum.concat
+  end
 
-  @impl Crawly.Spider
-  def base_url(), do: "https://www.dealerrater.com/"
-
-  @impl Crawly.Spider
-  def init(),
-    do: [
-      start_urls: [
-        "https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page1/"
-      ]
-    ]
-
-  @impl Crawly.Spider
-  def parse_item(response) do
-    # IO.inspect(response)
-    {:ok, document} = Floki.parse_document(response.body)
-
-    items =
-      document
-      |> Floki.find("#reviews")
-
-    IO.puts(items)
-
-    %Crawly.ParsedItem{:items => items, :requests => []}
+  def get_reviews_page(page) do
+    page |> scrape |> parse
   end
 
   def scrape(page) do
@@ -31,7 +14,6 @@ defmodule DealerReviews.Scraper do
       "https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page#{page}/"
 
     response = Crawly.fetch(url)
-    IO.inspect(response)
     response
   end
 
@@ -87,14 +69,14 @@ defmodule DealerReviews.Scraper do
            [
              {"class",
               "rating-static visible-xs pad-none margin-none rating-" <>
-                <<overall::binary-size(1)>> <> "0 pull-right"}
+                <<overall::binary-size(2)>> <> " pull-right"}
            ], _},
           _,
           {"div", _, [visit_reason]}
         ]}
      ]} = section
 
-    %{date: date, overall: overall, visit_reason: visit_reason}
+    %{date: date, overall: String.to_integer(overall) / 10, visit_reason: visit_reason}
   end
 
   def find_title_sections(document) do
@@ -133,32 +115,36 @@ defmodule DealerReviews.Scraper do
   end
 
   defp parse_employee_section(section) do
-    {"div", _,
-     [
-       {"div", [{"class", "table"}],
-        [
-          _,
-          {"div", _,
-           [
-             {"a", _, [employee]},
-             {"div", _,
-              [
-                {"div", _,
-                 [
-                   {"div", _,
-                    [
-                      {"span", _, [rating]},
-                      _
-                    ]}
-                 ]}
-              ]}
-           ]}
-        ]}
-     ]} = section
+    case section do
+      {"div", _,
+       [
+         {"div", [{"class", "table"}],
+          [
+            _,
+            {"div", _,
+             [
+               {"a", _, [employee]},
+               {"div", _,
+                [
+                  {"div", _,
+                   [
+                     {"div", _,
+                      [
+                        {"span", _, [rating]},
+                        _
+                      ]}
+                   ]}
+                ]}
+             ]}
+          ]}
+       ]} ->
+        employee_cleaned = employee |> String.replace("\r\n", "") |> String.trim()
+        {rating_integer, _} = rating |> Integer.parse()
+        %DealerReviews.Review.EmployeeReview{name: employee_cleaned, rating: rating_integer}
 
-    employee_cleaned = employee |> String.replace("\r\n", "") |> String.trim()
-    {rating_integer, _} = rating |> Integer.parse()
-    %DealerReviews.Review.EmployeeReview{name: employee_cleaned, rating: rating_integer}
+      _ ->
+        nil
+    end
   end
 
   def parse_employees_section(section) do
@@ -167,6 +153,7 @@ defmodule DealerReviews.Scraper do
 
     employees
     |> Enum.map(fn e -> parse_employee_section(e) end)
+    |> Enum.filter(fn e -> e != nil end)
   end
 
   def find_ratings_section(document) do
@@ -224,6 +211,7 @@ defmodule DealerReviews.Scraper do
       [h | t] ->
         case h do
           %{label: "Customer Service", rating: r} -> Map.put(ratings_map, :customer_service, r)
+          %{label: "Quality of Work", rating: r} -> Map.put(ratings_map, :quality, r)
           %{label: "Friendliness", rating: r} -> Map.put(ratings_map, :friendliness, r)
           %{label: "Pricing", rating: r} -> Map.put(ratings_map, :pricing, r)
           %{label: "Overall Experience", rating: r} -> Map.put(ratings_map, :overall, r)

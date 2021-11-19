@@ -12,7 +12,7 @@ defmodule DealerReviews.Review do
           title: String.t(),
           customer: String.t(),
           date: Date.t(),
-          overall_rating: integer,
+          overall_rating: float,
           visit_reason: String.t(),
           body: String.t(),
           ratings: DealerReviews.Review.Ratings.t(),
