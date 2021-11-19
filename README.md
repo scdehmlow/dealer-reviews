@@ -9,6 +9,7 @@ The following scores are used to sort the reviews:
 - Number of `!` characters in the review body
 
 ## Running
+### Elixir Environment
 To run the application either build an executable with `mix escript.build`, 
 run `DealerReviews.Cli.main` in iex, or run the mix task with `mix cli`.
 ### Docker
