@@ -1,5 +1,6 @@
 defmodule DealerReviews.Scraper do
   def get_reviews_pages(pages) do
+    HTTPoison.start
     pages
     |> Enum.map(fn p -> get_reviews_page(p) end)
     |> Enum.concat
@@ -9,16 +10,20 @@ defmodule DealerReviews.Scraper do
     page |> scrape |> parse
   end
 
-  def scrape(page) do
+  defp scrape(page) do
     url =
       "https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page#{page}/"
-
-    response = Crawly.fetch(url)
-    response
+    case HTTPoison.get(url) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} -> body
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        IO.puts "Not found :("
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        IO.inspect reason
+    end
   end
 
-  def parse(response) do
-    {:ok, document} = Floki.parse_document(response.body)
+  defp parse(body) do
+    {:ok, document} = Floki.parse_document(body)
 
     review_dates = get_review_dates(document)
     titles = get_titles(document)
@@ -55,11 +60,11 @@ defmodule DealerReviews.Scraper do
     |> Enum.map(fn r -> struct(DealerReviews.Review, r) end)
   end
 
-  def find_review_date_sections(document) do
+  defp find_review_date_sections(document) do
     document |> Floki.find("#reviews .review-entry .review-date")
   end
 
-  def parse_review_date_section(section) do
+  defp parse_review_date_section(section) do
     {"div", _,
      [
        {"div", _, [date]},
@@ -79,11 +84,11 @@ defmodule DealerReviews.Scraper do
     %{date: date, overall: String.to_integer(overall) / 10, visit_reason: visit_reason}
   end
 
-  def find_title_sections(document) do
+  defp find_title_sections(document) do
     document |> Floki.find("#reviews .review-entry .review-wrapper > div:first-of-type")
   end
 
-  def parse_title_section(section) do
+  defp parse_title_section(section) do
     {"div", _,
      [
        {"h3", _, [title]},
@@ -93,11 +98,11 @@ defmodule DealerReviews.Scraper do
     %{title: title |> String.replace("\"", ""), customer: customer}
   end
 
-  def find_body_sections(document) do
+  defp find_body_sections(document) do
     document |> Floki.find("#reviews .review-entry .review-wrapper > div:nth-of-type(2)")
   end
 
-  def parse_body_section(section) do
+  defp parse_body_section(section) do
     {"div", _,
      [
        {"div", _,
@@ -110,7 +115,7 @@ defmodule DealerReviews.Scraper do
     body
   end
 
-  def find_employees_sections(document) do
+  defp find_employees_sections(document) do
     document |> Floki.find("#reviews .review-entry .review-wrapper .employees-wrapper")
   end
 
@@ -147,7 +152,7 @@ defmodule DealerReviews.Scraper do
     end
   end
 
-  def parse_employees_section(section) do
+  defp parse_employees_section(section) do
     {"div", [{"class", "col-xs-12 lt-grey pad-left-none employees-wrapper"}], [_ | employees]} =
       section
 
@@ -156,11 +161,11 @@ defmodule DealerReviews.Scraper do
     |> Enum.filter(fn e -> e != nil end)
   end
 
-  def find_ratings_section(document) do
+  defp find_ratings_section(document) do
     document |> Floki.find("#reviews .review-entry .review-wrapper .review-ratings-all")
   end
 
-  def parse_recommend(recommend) do
+  defp parse_recommend(recommend) do
     case recommend do
       "Yes" -> true
       "No" -> false
@@ -168,7 +173,7 @@ defmodule DealerReviews.Scraper do
     end
   end
 
-  def parse_rating_section(section) do
+  defp parse_rating_section(section) do
     case section do
       {"div", _,
        [
@@ -196,7 +201,7 @@ defmodule DealerReviews.Scraper do
     end
   end
 
-  def parse_ratings_section(section) do
+  defp parse_ratings_section(section) do
     {"div", _,
      [
        _,
@@ -206,7 +211,7 @@ defmodule DealerReviews.Scraper do
     ratings
   end
 
-  def merge_ratings(ratings_map, ratings) do
+  defp merge_ratings(ratings_map, ratings) do
     case ratings do
       [h | t] ->
         case h do
@@ -224,7 +229,7 @@ defmodule DealerReviews.Scraper do
     end
   end
 
-  def get_ratings(document) do
+  defp get_ratings(document) do
     find_ratings_section(document)
     |> Enum.map(fn rating ->
       rating_list =
@@ -236,28 +241,28 @@ defmodule DealerReviews.Scraper do
     end)
   end
 
-  def get_employees(document) do
+  defp get_employees(document) do
     find_employees_sections(document)
     |> Enum.map(fn e ->
       parse_employees_section(e)
     end)
   end
 
-  def get_bodies(document) do
+  defp get_bodies(document) do
     find_body_sections(document)
     |> Enum.map(fn b ->
       parse_body_section(b)
     end)
   end
 
-  def get_titles(document) do
+  defp get_titles(document) do
     find_title_sections(document)
     |> Enum.map(fn t ->
       parse_title_section(t)
     end)
   end
 
-  def get_review_dates(document) do
+  defp get_review_dates(document) do
     find_review_date_sections(document)
     |> Enum.map(fn r ->
       parse_review_date_section(r)
