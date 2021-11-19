@@ -11,5 +11,16 @@ The following scores are used to sort the reviews:
 ## Running
 To run the application either build an executable with `mix escript.build`, 
 run `DealerReviews.Cli.main` in iex, or run the mix task with `mix cli`.
+### Docker
+This application can also be run in a docker container. Use the following command to build the container:
+```bash
+docker build -t dealer_reviews .
+```
+and then run this command to run the application and print to the console:
+```bash
+docker run -it --rm dealer_reviews
+```
+Make sure the dockerfile is updated if the elixir version is updated.
 ## Testing
 Tests can be run with `mix test`.
+
